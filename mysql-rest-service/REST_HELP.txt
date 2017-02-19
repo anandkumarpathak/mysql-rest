@@ -1,0 +1,9 @@
+http://localhost:8080/rest/api/swagger.json
+
+http://localhost:8080/rest/swagger/
+
+/home/andy/workspace/rest-framework/src/main/webapp/swagger
+
+works with tomcat 7, jdk 7 or 8
+
+lib contains config.properties
