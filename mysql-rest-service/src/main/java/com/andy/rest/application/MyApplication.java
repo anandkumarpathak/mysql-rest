@@ -52,7 +52,8 @@ public class MyApplication extends ResourceConfig {
     private static final Logger LOGGER = Logger.getLogger(MyApplication.class);
 
     public MyApplication() {
-	this.packages(Utils.BUNDLE.getProperty("rest.packages").split(","));
+	LOGGER.debug("Initializing Rest Application");
+	this.packages("com.andy.rest");
 	this.register(JacksonFeature.class);
 	this.property(ServerProperties.RESOURCE_VALIDATION_DISABLE, true);
     }
