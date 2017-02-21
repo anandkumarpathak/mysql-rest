@@ -1,11 +1,7 @@
 package com.andy.rest.beans;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 public class Response {
-	private List<Map<String, Object>> objects = new ArrayList<Map<String, Object>>();
+	private Object objects = null;
 	private boolean status = true;
 	private String message = "Successful";
 	private long time = 0;
@@ -26,11 +22,11 @@ public class Response {
 	    this.message = message;
 	}
 
-	public List<Map<String, Object>> getObjects() {
+	public Object getObjects() {
 	    return objects;
 	}
 
-	public void setObjects(List<Map<String, Object>> objects) {
+	public void setObjects(Object objects) {
 	    this.objects = objects;
 	}
 
