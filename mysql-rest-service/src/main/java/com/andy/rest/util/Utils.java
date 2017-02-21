@@ -122,9 +122,8 @@ public class Utils {
 		}
 	    }
 	    Integer type = columnDataTypes.get(entity + '-' + column);
-	    System.out.println("Type is "+type);
-	    if (type !=null && columnDataTypes.get(entity + '-' + column).intValue() == Types.TIMESTAMP) {
-		System.out.println(value.getClass().getName());
+	    LOGGER.debug("Type is "+type);
+	    if (type !=null && columnDataTypes.get(entity + '-' + column).intValue() == Types.TIMESTAMP) {		
 		statement.setTimestamp(i++, new Timestamp((Long) value));
 	    } else if (type !=null  && columnDataTypes.get(entity + '-' + column).intValue() == Types.DATE) {
 		statement.setDate(i++, new Date(DATE_FORMAT.parse(value.toString()).getTime()));
