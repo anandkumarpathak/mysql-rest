@@ -51,6 +51,8 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -159,14 +161,17 @@ public class MysqlDML {
 
 	    LOGGER.debug("Column Count: " + md.getColumnCount());
 	    LOGGER.debug("Columns: " + getColumns(md));
+	    List<Object> list = new ArrayList<Object>(); 
+	    
 	    while (rs.next()) {
 		Map<String, Object> re = new HashMap<String, Object>(md.getColumnCount());
 		for (int i = 0; i < md.getColumnCount(); i++) {
 		    Object obj = rs.getObject(i + 1);
 		    re.put(md.getColumnName(i + 1), obj);
 		}
-		response.getObjects().add(re);
+		list.add(re);
 	    }
+	    response.setObjects(list);
 
 	} catch (Exception e) {
 	    response.setStatus(false);
@@ -198,17 +203,17 @@ public class MysqlDML {
 
 	    LOGGER.debug("Transactional: " + input.isTransaction());
 
-	    Set<String> dependencySet = new HashSet<String>();
+	    Set<String> dependencySet = new LinkedHashSet<String>();
 
 	    // Foreign key's for each entity and its foreign column mapped to
 	    // target entity
 	    // e.g. RoomBooking-idRoom -> Room
-	    final Map<String, String> foreignKeyMap = new HashMap<String, String>();
+	    final Map<String, String> foreignKeyMap = new LinkedHashMap<String, String>();
 
 	    // List of entities to be inserted in exact order
 	    final List<String> list = new ArrayList<String>();
 
-	    final Map<String, Integer> columnDataTypes = new HashMap<String, Integer>();
+	    final Map<String, Integer> columnDataTypes = new LinkedHashMap<String, Integer>();
 
 	    final TreeTraversalListener tr = new TreeTraversalListener() {
 
@@ -249,7 +254,7 @@ public class MysqlDML {
 		}
 	    }
 
-	    Map<String, Integer> generatedIds = new HashMap<String, Integer>();
+	    Map<String, Integer> generatedIds = new LinkedHashMap<String, Integer>();
 
 	    for (String entity : list) {
 		LOGGER.debug("Entity: " + entity.toUpperCase());
@@ -269,6 +274,8 @@ public class MysqlDML {
 		}
 	    }
 	    con.commit();
+	    
+	    response.setObjects(generatedIds);
 
 	    LOGGER.debug("Transaction Completed Successfully");
 
@@ -280,6 +287,7 @@ public class MysqlDML {
 		    e1.printStackTrace();
 		}
 	    }
+	    response.setObjects(null);
 	    response.setStatus(false);
 	    response.setMessage("Error: " + e.getMessage());
 	} finally {
