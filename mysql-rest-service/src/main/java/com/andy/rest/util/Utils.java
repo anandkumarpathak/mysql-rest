@@ -55,14 +55,16 @@ public class Utils {
 		// be inserted
 		continue;
 	    }
+	    
+	    listener.childFound(entity, fkcd.getForeignKeyTable(), fkcd.getName());
+	    
 	    if (dependencySet.contains(fkcd.getForeignKeyTable())) {
 		// child foreignKey table has already been visited so skip
 		continue;
 	    }
 
 	    dependencySet.add(fkcd.getForeignKeyTable());
-	    listener.childFound(entity, fkcd.getForeignKeyTable(), fkcd.getName());
-
+	    
 	    traverse(connection, fkcd.getForeignKeyTable(), dependencySet, entitySet, listener);
 	}
 
