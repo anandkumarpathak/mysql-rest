@@ -1,2 +1,7 @@
-# mysql-rest
-MySql REST API based on Jersey
+# Mysql Rest Service
+
+---
+
+## About
+
+**Mysql Rest Service** 
