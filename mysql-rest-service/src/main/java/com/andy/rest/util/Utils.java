@@ -1,5 +1,9 @@
 package com.andy.rest.util;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.Date;
@@ -8,17 +12,16 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.sql.Types;
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.log4j.Logger;
 
 import com.andy.rest.application.MyApplication;
@@ -28,7 +31,7 @@ import com.andy.rest.beans.TreeTraversalListener;
 public class Utils {
 
     private static final Logger LOGGER = Logger.getLogger(Utils.class);
-    
+
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
 
     public static Properties BUNDLE = new Properties();
@@ -55,16 +58,16 @@ public class Utils {
 		// be inserted
 		continue;
 	    }
-	    
+
 	    listener.childFound(entity, fkcd.getForeignKeyTable(), fkcd.getName());
-	    
+
 	    if (dependencySet.contains(fkcd.getForeignKeyTable())) {
 		// child foreignKey table has already been visited so skip
 		continue;
 	    }
 
 	    dependencySet.add(fkcd.getForeignKeyTable());
-	    
+
 	    traverse(connection, fkcd.getForeignKeyTable(), dependencySet, entitySet, listener);
 	}
 
@@ -122,12 +125,17 @@ public class Utils {
 		}
 	    }
 	    Integer type = columnDataTypes.get(entity + '-' + column);
-	    LOGGER.debug("Type is "+type);
-	    if (type !=null && columnDataTypes.get(entity + '-' + column).intValue() == Types.TIMESTAMP) {		
+	    LOGGER.debug("Type is " + type);
+	    if (type != null && columnDataTypes.get(entity + '-' + column).intValue() == Types.TIMESTAMP) {
 		statement.setTimestamp(i++, new Timestamp((Long) value));
-	    } else if (type !=null  && columnDataTypes.get(entity + '-' + column).intValue() == Types.DATE) {
+	    } else if (type != null && columnDataTypes.get(entity + '-' + column).intValue() == Types.DATE) {
 		statement.setDate(i++, new Date(DATE_FORMAT.parse(value.toString()).getTime()));
-	    }else {
+	    } else if (type != null && columnDataTypes.get(entity + '-' + column).intValue() == Types.LONGVARBINARY) {
+		// The image like data must be passed as a Base64 encoded string
+		// which we would decode and set in db
+		byte[] data = Base64.decodeBase64(value.toString());
+		statement.setBinaryStream(5, new ByteArrayInputStream(data), data.length);
+	    } else {
 		statement.setObject(i++, value);
 	    }
 	}
@@ -180,6 +188,28 @@ public class Utils {
 
 	String sql = sb.toString();
 	return sql;
+    }
+
+    public byte[] fetchBlob(InputStream blobData) {
+
+	if (blobData == null) {
+	    return null;
+	}
+
+	try {
+	    int size = 0;
+	    byte[] bytearray = new byte[8192];
+
+	    ByteArrayOutputStream bos = new ByteArrayOutputStream(1024 * 8);
+
+	    while ((size = blobData.read(bytearray)) != -1) {
+		bos.write(bytearray, 0, size);
+	    }
+	    return bos.toByteArray();
+	} catch (IOException e) {
+	    e.printStackTrace();
+	}
+	return null;
     }
 
 }
