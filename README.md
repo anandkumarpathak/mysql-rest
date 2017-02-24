@@ -50,10 +50,10 @@ The query can be any simple or complex SQL SELECT statement which can contain an
 The select operation can be done only on the DB specified as parameter dbName. Cross DB select is not supported. The authentication will be done from config*.
 
 The response is a JSON object and is explained as below:
-
-'objects' = an array of records, each element of array being a row of the resultset.
-'status' = the boolean status of the operation i.e. true for success and false for failure.
+````
+'objects' = an array of records, each element of array being a row of the resultset
+'status' = the boolean status of the operation i.e. true for success and false for failure
 'message' = the message describing the status of operation
 'time' = the time taken in the operation in milliseconds
-
+````
 Each element of the objects array is an row returned as a result of the sql statement. The SQL statement must be written in such a way that each output column has a unique name. So in case of joins where multiple tables have same column, the query can use an alias for each output column to uniquely identify a column. This is required because the implementation uses a map to represent a row object and only single entry can be done for same column name repeated in a row.
