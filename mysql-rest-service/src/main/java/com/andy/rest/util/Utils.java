@@ -189,6 +189,10 @@ public class Utils {
 	String sql = sb.toString();
 	return sql;
     }
+    
+    public String createDeleteQuery(String entity) {
+	return "Delete from " + entity + " where id = ?";
+    }
 
     public byte[] fetchBlob(InputStream blobData) {
 
