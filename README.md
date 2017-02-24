@@ -57,3 +57,14 @@ The response is a JSON object and is explained as below:
 'time' = the time taken in the operation in milliseconds
 ````
 Each element of the objects array is an row returned as a result of the sql statement. The SQL statement must be written in such a way that each output column has a unique name. So in case of joins where multiple tables have same column, the query can use an alias for each output column to uniquely identify a column. This is required because the implementation uses a map to represent a row object and only single entry can be done for same column name repeated in a row.
+
+#### Supported Data types for columns
+
+The response row object supports below data types and expected format:
+````
+'int' returned as number
+'varchar' returned as String
+'Date' returned as String date as 'yyyy-MM-dd'
+'DateTime' returned as long representing milliseconds since epoch
+'BLOB' returned as BASE64 encoded String
+````
