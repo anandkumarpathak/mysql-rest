@@ -8,8 +8,23 @@
 
 The service loads properties from classpath to connect to the target DB. Currently the name of the file is config.properties. 
 
-Note: The current implementation does not support request based authentication and DB login is done via config.properties only. This feature will be available in next releases.
-		This service will not support DDL operations, hence operations like create table, alter table etc cannot be done.
+Authentication and suthorization has been added in the service. The authentication is done via login REST service and user is authorized using 'User' and 'Role' DB tables.
+The supported roles are as below:
+````
+Unauthenticated - Not used for now
+User - minimum role required to query tables. Operation supported: Select
+Approver - Not used for now
+Editor - Add records. Operation supported: Insert
+Manager - Update/Delete Records. Operation supported: Update/Delete
+Administrator - Create tables ( service not available yet )
+````
+The roles are cascading in nature, which means that higher roles are authorized to do all operations as lower roles with some extra added features exclusive to the role.
+
+The User table must have fields -> uid, firstName, lastName, password and idRole where idRole refers to an id in Role table.
+
+Please note that authentication and authorization is only to support various operations from the REST service. The actual login to DB is still done via the configured DB admin user.
+
+Note: This service will not support DDL operations, hence operations like create table, alter table etc cannot be done.
 
 ## Usage
 ### Query ( Fetch Data )
