@@ -19,6 +19,8 @@ import java.util.Set;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -39,6 +41,9 @@ import com.andy.rest.beans.TreeTraversalListener;
 import com.andy.rest.exception.DependencyException;
 import com.andy.rest.exception.EntityException;
 import com.andy.rest.util.Utils;
+import com.andy.security.api.Role;
+import com.andy.security.api.Secured;
+import com.andy.security.api.User;
 
 import io.swagger.annotations.Api;
 
@@ -105,6 +110,7 @@ public class MysqlDML {
 
     @POST
     @Path("query")
+    @Secured({ Role.User })
     @Consumes(MediaType.APPLICATION_JSON)
     public Response fetch(@QueryParam("dbName") String dbName, @QueryParam("query") String query) {
 
@@ -112,7 +118,7 @@ public class MysqlDML {
 	long t1 = System.currentTimeMillis();
 	try {
 
-	    Connection con = getConnection();
+	    Connection con = getConnection(dbName);
 	    Statement st = con.createStatement();
 
 	    ResultSet rs = st.executeQuery(query);
@@ -152,6 +158,7 @@ public class MysqlDML {
 
     @POST
     @Path("delete")
+    @Secured({ Role.Administrator })
     @Consumes(MediaType.APPLICATION_JSON)
     public Response delete(@QueryParam("dbName") String dbName, Input<Object> input) {
 
@@ -267,8 +274,7 @@ public class MysqlDML {
     }
 
     protected int runDelete(String entity, int objectIndex, Map<String, Object> object, Connection con,
-	    Map<String, String> foreignKeyMap)
-		    throws SQLException, ParseException {
+	    Map<String, String> foreignKeyMap) throws SQLException, ParseException {
 	PreparedStatement statement = null;
 	try {
 	    String sql = utils.createDeleteQuery(entity);
@@ -284,6 +290,7 @@ public class MysqlDML {
 
     @POST
     @Path("insertOrUpdate")
+    @Secured({ Role.Administrator })
     @Consumes(MediaType.APPLICATION_JSON)
     public Response insertOrUpdate(@QueryParam("dbName") String dbName, Input<Object> input) {
 
@@ -398,7 +405,7 @@ public class MysqlDML {
 
     private void runStatement(String entity, int objectIndex, Map<String, Object> object, Connection con,
 	    Map<String, String> foreignKeyMap, Map<String, Integer> generatedIds, Map<String, Integer> columnDataTypes)
-		    throws SQLException, ParseException {
+	    throws SQLException, ParseException {
 
 	PreparedStatement statement = null;
 	ResultSet keys = null;
@@ -455,4 +462,120 @@ public class MysqlDML {
 	return statement;
     }
 
+    @POST
+    @Path("login")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public javax.ws.rs.core.Response login(@QueryParam("user") String user, @QueryParam("password") String password,
+	    @QueryParam("dbName") String dbName, @Context HttpServletRequest webRequest) {
+
+	PreparedStatement ps = null;
+	ResultSet rs = null;
+	try {
+	    long t1 = System.currentTimeMillis();
+
+	    LOGGER.debug("Login invoked()");
+
+	    HttpSession session = webRequest.getSession(true);
+
+	    Map<String, Role> resourcesRoleMap = (Map<String, Role>) session.getAttribute("resourceRoleMap");
+	    if (resourcesRoleMap != null && resourcesRoleMap.containsKey(dbName)) {
+		LOGGER.debug("User already logged in");
+		return javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.NOT_ACCEPTABLE).entity("Already logged in")
+			.build();
+	    }
+
+	    Connection con = getConnection(dbName);
+
+	    ps = con.prepareStatement("Select u.firstName, u.lastName, r.name from User u, Role r where "
+		    + " u.idRole = r.id and u.uid = ? and u.password = ?");
+	    ps.setString(1, user);
+	    ps.setString(2, password);
+
+	    rs = ps.executeQuery();
+
+	    if (!rs.next()) {
+		LOGGER.debug("Login denied");
+		return javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.UNAUTHORIZED)
+			.entity("Invalid credentials or Invalid DB").build();
+	    }
+
+	    User u = new User();
+	    u.setFirstName(rs.getString(1));
+	    u.setLastName(rs.getString(2));
+	    u.setPassword(password);
+
+	    session.invalidate();
+	    session = webRequest.getSession(true);
+
+	    session.setAttribute(dbName + "-user", user);
+
+	    if (resourcesRoleMap == null) {
+		resourcesRoleMap = new HashMap<String, Role>();
+	    }
+
+	    resourcesRoleMap.put(dbName, Role.fromName(rs.getString(3)));
+
+	    session.setAttribute("resourceRoleMap", resourcesRoleMap);
+
+	    LOGGER.debug("Mapping set in session: " + resourcesRoleMap);
+
+	    long t2 = System.currentTimeMillis();
+
+	    LOGGER.debug("Login completed in " + (t2 - t1) + " ms");
+
+	    return javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.OK)
+		    .entity("Authentication Successful for DB " + dbName).build();
+
+	} catch (Exception e) {
+	    LOGGER.error("Error login: " + e.getLocalizedMessage(), e);
+	    return javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.UNAUTHORIZED).entity("Invalid credentials")
+		    .build();
+	} finally {
+	    if (rs != null) {
+		try {
+		    rs.close();
+		} catch (SQLException e) {
+		    return javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR).build();
+		}
+	    }
+	    if (ps != null) {
+		try {
+		    ps.close();
+		} catch (SQLException e) {
+		    return javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR).build();
+		}
+	    }
+	}
+    }
+
+    @POST
+    @Path("logout")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Object logout(@Context HttpServletRequest webRequest) {
+
+	try {
+	    long t1 = System.currentTimeMillis();
+
+	    LOGGER.debug("Logout invoked()");
+
+	    HttpSession session = webRequest.getSession(true);
+
+	    if (session.getAttribute("resourceRoleMap") == null) {
+		LOGGER.debug("Invalid operation");
+		return javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.NOT_ACCEPTABLE).entity("Failed Log out")
+			.build();
+	    }
+	    session.invalidate();
+	    long t2 = System.currentTimeMillis();
+
+	    LOGGER.debug("Logout completed in " + (t2 - t1) + " ms");
+
+	    return javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.OK).entity("Successfully Logged out").build();
+
+	} catch (Exception e) {
+	    LOGGER.error("Error logging out: " + e.getLocalizedMessage(), e);
+	    return javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.NOT_ACCEPTABLE).entity("Failed Log out")
+		    .build();
+	}
+    }
 }

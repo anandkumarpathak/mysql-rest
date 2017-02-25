@@ -44,16 +44,13 @@ import org.glassfish.jersey.jackson.JacksonFeature;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.server.ServerProperties;
 
-import com.andy.rest.resources.MysqlDML;
-import com.andy.rest.util.Utils;
-
 public class MyApplication extends ResourceConfig {
     
     private static final Logger LOGGER = Logger.getLogger(MyApplication.class);
 
     public MyApplication() {
 	LOGGER.debug("Initializing Rest Application");
-	this.packages("com.andy.rest");
+	this.packages("com.andy.rest"+","+"com.andy.security");
 	this.register(JacksonFeature.class);
 	this.property(ServerProperties.RESOURCE_VALIDATION_DISABLE, true);
     }
