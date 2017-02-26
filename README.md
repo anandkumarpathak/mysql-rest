@@ -8,6 +8,13 @@
 
 The service loads properties from classpath to connect to the target DB. Currently the name of the file is config.properties. 
 
+Once built and deployed on local server, the service can be accessed at:
+http://localhost:8080/mrest
+where mrest is the context root for the service
+
+[Swagger](http://swagger.io/swagger-ui/) is also supported for this REST service and can be accessed at:
+http://localhost:8080/mrest/swagger/index.jsp
+
 Authentication and Authorization has been added in the service. The authentication is done via login REST service and user is authorized using 'User' and 'Role' DB tables.
 The supported roles are as below:
 
