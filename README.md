@@ -33,20 +33,20 @@ The roles are cascading in nature, which means that higher roles are authorized 
 
 The user DB should have two tables User and Role structured as below
 
-The *User* table must have fields:
+The **User** table must have fields:
   - uid (int)
   - firstName (varchar)
   - lastName (varchar)
   - password (varchar)
   - idRole (varchar) refers Role(id).
 
-The *Role* table should be structured as below:
+The **Role** table should be structured as below:
   - id (int)
   - name (varchar) 
 
 Please note that authentication and authorization is only to support various operations from the REST service. The actual login to DB is still done via the configured DB admin user.
 
-Note: This service will not support DDL operations, hence operations like create table, alter table etc cannot be done.
+> This service will not support DDL operations, hence operations like create table, alter table etc cannot be done.
 
 ## Usage
 
