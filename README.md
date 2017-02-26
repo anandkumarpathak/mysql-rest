@@ -132,3 +132,4 @@ Following things must be defined in DB already:
   - If an object has a foreign key to another object which has to be inserted as part of this request, then the foreign key should be set to -(index of the referenced object)
 		In above example, table4 has a new object to be inserted, but the foreign key("idTable1") has a value -2 => the generated id from second entry from table1 should be used as foreign key for this entry of Table4.
   - The service gurantees that the referenced entries are inserted/updated before the entries which depend on them
+  - Column and table names are case sensitive
