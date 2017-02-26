@@ -33,14 +33,14 @@ The roles are cascading in nature, which means that higher roles are authorized 
 
 The user DB should have two tables User and Role structured as below
 
-The User table must have fields:
+The *User* table must have fields:
   - uid (int)
   - firstName (varchar)
   - lastName (varchar)
   - password (varchar)
   - idRole (varchar) refers Role(id).
 
-The Role table should be structured as below:
+The *Role* table should be structured as below:
   - id (int)
   - name (varchar) 
 
@@ -84,7 +84,7 @@ The response for above request will be like below:
  }
 ````
 
-The query can be any simple or complex SQL SELECT statement which can contain any 'where', 'join' or 'aggregate' statements. It does not support INSERT/UPDATE or DELETE statements. 
+The query can be any simple or complex SQL SELECT statement which can contain 'where', 'join' or 'aggregate' statements. It does not support INSERT/UPDATE or DELETE statements. 
 The select operation can be done only on the DB specified as parameter dbName. Cross DB select is not supported.
 
 The response is a JSON object and is explained as below:
