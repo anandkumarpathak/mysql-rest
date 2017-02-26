@@ -8,7 +8,7 @@
 
 The service loads properties from classpath to connect to the target DB. Currently the name of the file is config.properties. 
 
-Authentication and suthorization has been added in the service. The authentication is done via login REST service and user is authorized using 'User' and 'Role' DB tables.
+Authentication and Authorization has been added in the service. The authentication is done via login REST service and user is authorized using 'User' and 'Role' DB tables.
 The supported roles are as below:
 
   - Unauthenticated - Not used for now
@@ -20,7 +20,18 @@ The supported roles are as below:
 
 The roles are cascading in nature, which means that higher roles are authorized to do all operations as lower roles with some extra added features exclusive to the role. **Administrator** is the highest role and **User** is the lowest role.
 
-The User table must have fields -> uid, firstName, lastName, password and idRole where idRole refers to an id in Role table.
+The user DB should have two tables User and Role structured as below
+
+The User table must have fields:
+  - uid (int)
+  - firstName (varchar)
+  - lastName (varchar)
+  - password (varchar)
+  - idRole (varchar) refers Role(id).
+
+The Role table should be structured as below:
+  - id (int)
+  - name (varchar) 
 
 Please note that authentication and authorization is only to support various operations from the REST service. The actual login to DB is still done via the configured DB admin user.
 
