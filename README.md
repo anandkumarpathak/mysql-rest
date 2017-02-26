@@ -65,7 +65,7 @@ curl -X POST --header 'Content-Type: application/json' --header 'Accept: applica
 ````
 
 The response for above request will be like below:
-````
+````json
  {
   "objects": [
     {      
@@ -111,19 +111,34 @@ The input objects must be formed like below
   "transaction": false,
   "entityGroups": {
 		"table1": [
-				{"column11":"value11"},
-				{"column12":"value12"}
+				{
+					"column11":"value11"
+				},
+				{
+					"column12":"value12"
+				}
 			],
 		"table2" : [
-				{"column21":"value21"},
-				{"column22":"value22"}
+				{
+					"column21":"value21"
+				},
+				{
+					"column22":"value22"
+				}
 			],
 		"table3": [
-				{"column31":"value31"},
-				{"id": 5, "column32":"value32"}
+				{
+					"column31":"value31"},
+				{
+					"id": 5, 
+					"column32":"value32"
+				}
 			],
 		"table4": [
-				{"column31":"value31", "idTable1":**-2**}		
+				{
+					"column31":"value31", 
+					"idTable1": -2 
+				}		
 			]
   }
 }
