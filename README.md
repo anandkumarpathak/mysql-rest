@@ -18,7 +18,7 @@ The supported roles are as below:
   - Manager - Update/Delete Records. Operation supported: Update/Delete
   - Administrator - Create tables ( service not available yet )
 
-The roles are cascading in nature, which means that higher roles are authorized to do all operations as lower roles with some extra added features exclusive to the role.
+The roles are cascading in nature, which means that higher roles are authorized to do all operations as lower roles with some extra added features exclusive to the role. **Administrator** is the highest role and **User** is the lowest role.
 
 The User table must have fields -> uid, firstName, lastName, password and idRole where idRole refers to an id in Role table.
 
@@ -63,7 +63,7 @@ The response for above request will be like below:
 ````
 
 The query can be any simple or complex SQL SELECT statement which can contain any 'where', 'join' or 'aggregate' statements. It does not support INSERT/UPDATE or DELETE statements. 
-The select operation can be done only on the DB specified as parameter dbName. Cross DB select is not supported. The authentication will be done from config*.
+The select operation can be done only on the DB specified as parameter dbName. Cross DB select is not supported.
 
 The response is a JSON object and is explained as below:
 
@@ -76,7 +76,7 @@ Each element of the objects array is an row returned as a result of the sql stat
 
 #### Supported Data types for columns
 
-The response row object supports below data types and expected format:
+The response row object supports below data types and format:
 
   - 'int' returned as number
   - 'varchar' returned as String
