@@ -10,7 +10,7 @@ The service loads properties from classpath to connect to the target DB. Current
 
 Authentication and suthorization has been added in the service. The authentication is done via login REST service and user is authorized using 'User' and 'Role' DB tables.
 The supported roles are as below:
-````
+
   - Unauthenticated - Not used for now
   - User - minimum role required to query tables. Operation supported: Select
   - Approver - Not used for now
