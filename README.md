@@ -53,7 +53,7 @@ Please note that authentication and authorization is only to support various ope
 Query is supported over POST http request. Sample POST request as below:
 
 ```
-POST http://localhost:8080/mrest/api/mdml/query
+**POST** http://localhost:8080/mrest/api/mdml/query
 dbName=myDb1
 query=Select * from MyTable1
 ```
@@ -86,7 +86,6 @@ The query can be any simple or complex SQL SELECT statement which can contain 'w
 The select operation can be done only on the DB specified as parameter dbName. Cross DB select is not supported.
 
 The response is a JSON object and is explained as below:
-
   - 'objects' = an array of records, each element of array being a row of the resultset
   - 'status' = the boolean status of the operation i.e. true for success and false for failure
   - 'message' = the message describing the status of operation
@@ -97,7 +96,6 @@ Each element of the objects array is an row returned as a result of the sql stat
 #### Supported Data types for columns
 
 The response row object supports below data types and format:
-
   - 'int' returned as number
   - 'varchar' returned as String
   - 'Date' returned as String date as 'yyyy-MM-dd'
