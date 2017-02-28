@@ -53,7 +53,7 @@ Please note that authentication and authorization is only to support various ope
 Query is supported over POST http request. Sample POST request as below:
 
 ```
-**POST** http://localhost:8080/mrest/api/mdml/query
+POST http://localhost:8080/mrest/api/mdml/query
 dbName=myDb1
 query=Select * from MyTable1
 ```
