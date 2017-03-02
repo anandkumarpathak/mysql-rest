@@ -16,10 +16,12 @@ import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.container.ResourceInfo;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.Form;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.Provider;
 
 import org.apache.log4j.Logger;
+import org.glassfish.jersey.server.ContainerRequest;
 
 import com.andy.security.api.Role;
 import com.andy.security.api.Secured;
@@ -43,7 +45,7 @@ public class AuthorizationFilter implements ContainerRequestFilter {
 
 	HttpSession session = webRequest.getSession();
 
-	String dbName = webRequest.getParameter("dbName");
+	String dbName = null;
 
 	Map<String, Role> resourceRoleMap = (Map<String, Role>) session.getAttribute("resourceRoleMap");
 
@@ -62,6 +64,7 @@ public class AuthorizationFilter implements ContainerRequestFilter {
 	    // The method annotations override the class annotations
 	    if (!methodRoles.isEmpty()) {
 		LOGGER.debug("Method annotation found for authorization");
+		dbName = findDbName(requestContext);
 		handleSecurity(dbName, resourceRoleMap, methodRoles);
 	    }
 
@@ -72,17 +75,44 @@ public class AuthorizationFilter implements ContainerRequestFilter {
 
 	    if (!classRoles.isEmpty()) {
 		LOGGER.debug("Class annotation found for authorization");
+		if (dbName == null) {
+		    dbName = findDbName(requestContext);
+		}
 		handleSecurity(dbName, resourceRoleMap, classRoles);
 	    }
-	    
+
 	} catch (Exception e) {
 	    LOGGER.error("User not authorized to access the resource " + dbName);
 	    requestContext.abortWith(Response.status(Response.Status.UNAUTHORIZED).entity(e.getMessage()).build());
 	}
     }
 
+    private String findDbName(ContainerRequestContext requestContext) {
+	String dbName = webRequest.getParameter("dbName");
+
+	if (dbName == null) {
+	    if (!(requestContext instanceof ContainerRequest)) {
+		LOGGER.debug("Cannot locate dbName, aborting...");
+		requestContext.abortWith(Response.status(Response.Status.UNAUTHORIZED).entity("DB not specified").build());
+	    }
+
+	    ContainerRequest cr = (ContainerRequest) requestContext;
+	    cr.bufferEntity();
+	    Form form = cr.readEntity(Form.class);
+	    List<?> params = form.asMap().get("dbName");
+
+	    if (params.size() == 0) {
+		LOGGER.debug("Cannot locate dbName, aborting...");
+		requestContext.abortWith(Response.status(Response.Status.UNAUTHORIZED).entity("DB not specified").build());
+	    }
+	    dbName = (String) params.get(0);
+	    LOGGER.debug("DB name found in form");
+	}
+	return dbName;
+    }
+
     protected void handleSecurity(String dbName, Map<String, Role> resourceRoleMap, List<Role> classRoles) throws Exception {
-	if(resourceRoleMap == null) {
+	if (resourceRoleMap == null) {
 	    throw new Exception("Unauthorized access to protected resource - Login Required");
 	}
 	if (!checkPermissions(resourceRoleMap, classRoles, dbName)) {

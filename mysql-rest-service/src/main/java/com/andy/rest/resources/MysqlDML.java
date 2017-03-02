@@ -35,6 +35,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Request;
 
 import org.apache.log4j.Logger;
+import org.glassfish.jersey.media.multipart.FormDataParam;
 
 import com.andy.rest.beans.Input;
 import com.andy.rest.beans.Response;
@@ -464,9 +465,8 @@ public class MysqlDML {
 
     @POST
     @Path("login")
-    @Consumes(MediaType.APPLICATION_JSON)
-    public javax.ws.rs.core.Response login(@QueryParam("user") String user, @QueryParam("password") String password,
-	    @QueryParam("dbName") String dbName, @Context HttpServletRequest webRequest) {
+    public javax.ws.rs.core.Response login(@FormParam("user") String user, @FormParam("password") String password,
+	    @FormParam("dbName") String dbName, @Context HttpServletRequest webRequest) {
 
 	PreparedStatement ps = null;
 	ResultSet rs = null;
