@@ -23,6 +23,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.FormParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -111,8 +112,7 @@ public class MysqlDML {
     @POST
     @Path("query")
     @Secured({ Role.User })
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response fetch(@QueryParam("dbName") String dbName, @QueryParam("query") String query) {
+    public Response fetch(@FormParam("dbName") String dbName, @FormParam("query") String query) {
 
 	Response response = new Response();
 	long t1 = System.currentTimeMillis();
