@@ -105,7 +105,7 @@ public class MysqlDML {
     private List<String> getColumns(ResultSetMetaData md) throws SQLException {
 	List<String> columns = new ArrayList<String>();
 	for (int i = 0; i < md.getColumnCount(); i++) {
-	    columns.add(md.getColumnName(i + 1));
+	    columns.add(md.getColumnLabel(i + 1));
 	}
 	return columns;
     }
@@ -134,13 +134,12 @@ public class MysqlDML {
 
 		Map<String, Object> re = new HashMap<String, Object>(md.getColumnCount());
 		for (int i = 0; i < md.getColumnCount(); i++) {
-		    LOGGER.debug("Column " + md.getColumnName(i + 1) + ": " + md.getColumnType(i + 1));
 		    if (md.getColumnType(i + 1) == Types.LONGVARBINARY) {
 			LOGGER.debug("Reading BLOB");
-			re.put(md.getColumnName(i + 1), utils.fetchBlob(rs.getBinaryStream(i + 1)));
+			re.put(md.getColumnLabel(i + 1), utils.fetchBlob(rs.getBinaryStream(i + 1)));
 		    } else {
 			Object obj = rs.getObject(i + 1);
-			re.put(md.getColumnName(i + 1), obj);
+			re.put(md.getColumnLabel(i + 1), obj);
 		    }
 		}
 		list.add(re);
